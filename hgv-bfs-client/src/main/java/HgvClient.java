@@ -13,6 +13,7 @@ public class HgvClient {
     }
 
     public Graph loadGraph(int id) {
+        System.out.println("Getting Graph:");
         send("{type: \"GetGraph\", graphId: "+id+"}");
         return new Graph(receive());
     }
@@ -28,7 +29,11 @@ public class HgvClient {
 
     private String receive() {
         try {
-            return in.readLine();
+            String rec =  in.readLine().trim();
+            while(rec.isBlank()) {
+                rec = in.readLine().trim();
+            }
+            return rec;
         } catch (IOException e) {
             System.out.println("Error occurred while receiving");
             return null;
@@ -36,11 +41,13 @@ public class HgvClient {
     }
 
     public void setColor(int i, String s) {
+        System.out.println("change color of id: " + i);
         send("{ type: \"ChangeMetadata\", key: \"color\", value: \"" + s + "\", id: "+i+"}");
-        System.out.println(receive());
+        System.out.println(receive().trim());
     }
 
     public void pause() {
+        System.out.println("pausing");
         send("{ type: \"Pause\"}");
         synchronized (this) {
             try {
@@ -49,11 +56,10 @@ public class HgvClient {
                 e.printStackTrace();
             }
         }
-        System.out.println(receive());
+        System.out.println(receive().trim());
     }
 
     public void render() {
         send("{ type: \"Render\"}");
-        System.out.println(receive().trim());
     }
 }

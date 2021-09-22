@@ -14,7 +14,6 @@ public class Graph {
         JSONObject graph = new JSONObject(received);
         v = new int[graph.getJSONArray("nodes").length()];
         e = new int[graph.getJSONArray("edges").length()][2];
-        int prefixSum = 0;
         Object[] nodes = graph.getJSONArray("nodes").toList().toArray();
         for (int i = 0; i < nodes.length; i++) {
             v[i] = ((HashMap<String, Integer>)nodes[i]).get("id");
@@ -28,28 +27,28 @@ public class Graph {
 
     public void bfs(int startNode, HgvClient hgv) {
         visited.add(startNode);
+        visit(startNode, hgv);
         int lastSize = 0;
+        hgv.render();
+        hgv.pause();
         while(lastSize != visited.size()) {
             lastSize = visited.size();
             Vector<Integer> visitedThisIter = new Vector<>();
             for (int[] edge : e) {
                 if (hasVisited(edge[0]) && !hasVisited(edge[1])) {
                     visitedThisIter.add(edge[1]);
-                    visit(edge[1], hgv);
                 } else if (!hasVisited(edge[0]) && hasVisited(edge[1])) {
                     visitedThisIter.add(edge[0]);
-                    visit(edge[0], hgv);
                 }
             }
             visited.addAll(visitedThisIter);
-            hgv.render();
-            synchronized (this) {
-                try {
-                    wait(2000);
-                } catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                }
+            for (Integer i : visited) {
+                hgv.setColor(i, "#00FFFF");
             }
+            for (Integer i : visitedThisIter) {
+                visit(i, hgv);
+            }
+            hgv.render();
             hgv.pause();
         }
     }
