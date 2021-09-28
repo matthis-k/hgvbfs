@@ -49,8 +49,35 @@ public class Graph {
                 visit(i, hgv);
             }
             hgv.render();
-            hgv.pause();
+            synchronized(this) {
+                try {
+                    wait(250);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
+    }
+
+    public void dfs(int startNode, Vector<Integer> visited, HgvClient hgv) {
+        for (Integer i : visited) {
+            hgv.setColor(i, "#00FFFF");
+        }
+        visited.add(startNode);
+        visit(startNode, hgv);
+        hgv.render();
+        hgv.pause();
+        for (int[] edge : e) {
+            if (hasVisited(edge[0]) && !hasVisited(edge[1])) {
+                System.out.println("Visiting: " + edge[1]);
+                dfs(edge[1], visited, hgv);
+            } else if (!hasVisited(edge[0]) && hasVisited(edge[1])) {
+                System.out.println("Visiting: " + edge[0]);
+                dfs(edge[0], visited, hgv);
+            }
+        }
+        hgv.render();
+        hgv.pause();
     }
 
     private void visit(int i, HgvClient hgv) {
